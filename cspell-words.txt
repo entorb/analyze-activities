@@ -1,0 +1,24 @@
+# CSpell Custom Dictionary Words
+deepseek
+DTEND
+DTSTART
+entorb
+gut
+ical
+icalendar
+LifeLog
+Ollama
+Oura
+pytest
+pythonpath
+qwen
+RememberTheMilk
+RRULE
+schön
+shortstat
+SonarCloud
+SonarQube
+Strava
+Torben
+usecols
+VEVENT

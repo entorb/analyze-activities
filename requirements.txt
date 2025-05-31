@@ -1,0 +1,4 @@
+icalendar
+openpyxl
+pandas
+pytest-cov
