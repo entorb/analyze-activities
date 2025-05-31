@@ -12,3 +12,4 @@ output/
 
 # project
 src/name_fix.py
+src/influx_creds.py

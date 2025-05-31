@@ -1,4 +1,5 @@
 # CSpell Custom Dictionary Words
+creds
 deepseek
 DTEND
 DTSTART
@@ -7,11 +8,14 @@ gut
 ical
 icalendar
 LifeLog
+mmin
 Ollama
 Oura
+prio
 pytest
 pythonpath
 qwen
+Raspi
 RememberTheMilk
 RRULE
 schön
