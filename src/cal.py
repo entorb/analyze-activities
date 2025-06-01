@@ -44,14 +44,13 @@ def main_cal(p: Path) -> dict[str, list[str]]:  # noqa: D103
             continue
 
         start = event.get("DTSTART").dt
+        end = event.get("DTEND").dt
 
         # skip future events
         if (type(start) is dt.date and start > TODAY) or (
             type(start) is dt.datetime and start.replace(tzinfo=None) > NOW_DT
         ):
             continue
-
-        # TODO: how to handle multi day events
 
         # full-day events
         if type(start) is dt.date:
@@ -65,6 +64,14 @@ def main_cal(p: Path) -> dict[str, list[str]]:  # noqa: D103
             s = f"{time} {title}"
 
         append_data(db, date, s)
+
+        # multi-day events
+        if type(start) is dt.date and type(end) is dt.date and end > start:
+            day = start + dt.timedelta(days=1)
+            while day < end:
+                append_data(db, str(day), s)
+                day = day + dt.timedelta(days=1)
+
     return db
 
 
