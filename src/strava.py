@@ -1,67 +1,66 @@
-"""Read Strava activity Excel and convert to json list."""
+"""Read Strava activity ics export and convert to json list."""
 
+import datetime as dt
+import re
 from pathlib import Path
 
-import pandas as pd
+from helper import TZ_DE, TZ_UTC, append_data, export_json
 
-from helper import append_data, export_json
-
-FILE_IN = Path("data/strava/Strava_Activity_List.xlsx")
+FILE_IN = Path("data/strava/Strava_Activity_Calendar.ics")
 
 
-def cleanup(df: pd.DataFrame) -> pd.DataFrame:
-    """Clean up the DataFrame."""
-    df = df.rename(
-        columns={
-            "x_date": "date",
-            "name": "title",
-            "x_min": "minutes",
-            "start_date_local": "time",
-        }
+def datestr_to_dt(datestr: str) -> dt.datetime:
+    """Convert to datetime in local timezone, without seconds."""
+    # 20250531T125001Z
+    return (
+        dt.datetime.strptime(datestr, "%Y%m%dT%H%M%SZ")
+        .replace(tzinfo=TZ_UTC, second=0)
+        .astimezone(tz=TZ_DE)
+        .replace(tzinfo=None)
     )
 
-    df["minutes"] = df["minutes"].round().astype(int)
 
-    # 2025-05-31 14:50:01 -> 14:50
-    df["date"] = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")  # type: ignore
-    df["time"] = pd.to_datetime(df["time"]).dt.strftime("%H:%M")  # type: ignore
-
-    df["type"] = df["type"].str.replace("Ride", "Cycling")  # type: ignore
-    df["type"] = df["type"].str.replace("Run", "Jogging")  # type: ignore
-
-    # title: remove leading 123/365
-    df["title"] = df["title"].str.replace(r"^\d+/365\s*", "", regex=True)  # type: ignore
-
-    df["s"] = (
-        df["time"]
-        + " "
-        + df["type"]
-        + ": "
-        + df["title"]
-        + " ("
-        + df["minutes"].astype(str)
-        + " min)"
-    )
-    df = df[["date", "s"]]
-    return df
-
-
-def main() -> None:  # noqa: D103
-    df = pd.read_excel(  # type: ignore
-        FILE_IN,
-        usecols=["x_date", "start_date_local", "name", "type", "x_min"],
-    )
-
-    df = cleanup(df)
-
+def main_strava(file_in: Path) -> dict[str, list[str]]:
+    """Read Strava_Activity_Calendar.ics and return dict."""
     db: dict[str, list[str]] = {}
-    for row in df.itertuples():
-        date = str(row.date)
-        s = str(row.s)
+
+    l_cont = file_in.read_text().split("BEGIN:VEVENT")
+    l_cont.pop(0)  # remove header
+    for event in l_cont:
+        event_dict: dict[str, str] = {}
+        for line in event.strip().splitlines():
+            if ":" in line:
+                key, value = line.split(":", 1)
+                event_dict[key.strip()] = value.strip()
+        act_type, title = event_dict["SUMMARY"].split(": ", maxsplit=1)
+        if act_type == "Ride":
+            act_type = "Cycling"
+        elif act_type == "Run":
+            act_type = "Jogging"
+        elif act_type == "VirtualRide":
+            act_type = "IndoorCycling"
+
+        title = title.replace(" (Strava)", "")
+        title = re.sub(r"^\d+\w?/365\s*", "", title)
+
+        # replace initials by full names
+        if Path("src/name_fix.py").exists():
+            from name_fix import name_fix
+
+            title = name_fix(title)
+
+        # DTSTART:20250531T125001Z
+        dt_start = datestr_to_dt(event_dict["DTSTART"])
+        date = str(dt_start.date())
+        start_time = dt_start.strftime("%H:%M")
+        # duration from end-start does not take breaks into account
+        # hence added the time in the cal export.
+        s = f"{start_time} {act_type}: {title}"
         append_data(db, date, s)
 
-    export_json(db=db, filename="strava")
+    return db
 
 
 if __name__ == "__main__":
-    main()
+    db = main_strava(FILE_IN)
+    export_json(db=db, filename="strava")
