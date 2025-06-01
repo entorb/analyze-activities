@@ -2,6 +2,10 @@
 
 import json
 from pathlib import Path
+from zoneinfo import ZoneInfo
+
+TZ_DE = ZoneInfo("Europe/Berlin")
+TZ_UTC = ZoneInfo("UTC")
 
 
 def export_json(db: dict[str, list[str]], filename: str) -> None:

@@ -6,34 +6,24 @@ based on https://github.com/entorb/tools-calendar/blob/main/upcoming_events.py
 
 import datetime as dt
 from pathlib import Path
-from zoneinfo import ZoneInfo
 
 import icalendar
 
-from helper import append_data, export_json
+from helper import TZ_DE, TZ_UTC, append_data, export_json
 
-TZ_DE = ZoneInfo("Europe/Berlin")
-FILE_IN = Path("data/cal/cal-torben-nc.ics")
+FILE_IN = Path("data/cal/cal.ics")
 TODAY = dt.datetime.now(tz=TZ_DE).date()
 NOW_DT = dt.datetime.now(tz=TZ_DE).replace(tzinfo=None)
 
 
-def convert_date_or_dt_to_dt(date_or_dt: dt.date | dt.datetime) -> dt.datetime:
-    """
-    Convert date or datetime to datetime.
-
-    in German timezone, without timezone info
-    """
-    if type(date_or_dt) is dt.datetime:
-        my_dt = date_or_dt.replace(microsecond=0)
-        if my_dt.tzinfo is not None:
-            my_dt = my_dt.astimezone(TZ_DE).replace(tzinfo=None)
-    else:
-        my_dt = dt.datetime.combine(date_or_dt, dt.time(0, 0, 0), tzinfo=None)
-    return my_dt
+def adjust_dt(my_dt: dt.datetime) -> dt.datetime:
+    """Convert to datetime in local timezone, without seconds."""
+    if my_dt.tzinfo == TZ_UTC:
+        my_dt = my_dt.astimezone(TZ_DE)
+    return my_dt.replace(tzinfo=None, second=0, microsecond=0)
 
 
-def main(p: Path) -> dict[str, list[str]]:  # noqa: D103
+def main_cal(p: Path) -> dict[str, list[str]]:  # noqa: D103
     db: dict[str, list[str]] = {}
 
     with p.open(encoding="utf-8", newline="\r\n") as f:
@@ -41,6 +31,8 @@ def main(p: Path) -> dict[str, list[str]]:  # noqa: D103
 
     for event in calendar.walk("VEVENT"):
         title = str(event.get("SUMMARY")).strip()
+
+        # replace initials by full names
         if Path("src/name_fix.py").exists():
             from name_fix import name_fix
 
@@ -66,14 +58,16 @@ def main(p: Path) -> dict[str, list[str]]:  # noqa: D103
             date = str(start)
             s = f"00:00 {title}"
         else:
-            my_dt = convert_date_or_dt_to_dt(start)
+            assert type(start) is dt.datetime
+            my_dt = adjust_dt(start)
             date = str(my_dt.date())
-            s = f"{my_dt.strftime('%H:%M')} {title}"
+            time = my_dt.strftime("%H:%M")
+            s = f"{time} {title}"
 
         append_data(db, date, s)
     return db
 
 
 if __name__ == "__main__":
-    db = main(p=FILE_IN)
+    db = main_cal(p=FILE_IN)
     export_json(db=db, filename="cal")
