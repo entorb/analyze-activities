@@ -3,6 +3,7 @@ aggfunc
 autoflake
 autoupdate
 DataFrame
+DeepSeek
 dropna
 DTEND
 DTSTART
@@ -14,15 +15,18 @@ icalendar
 iloc
 isna
 isort
+lifelog
 Menke
 noqa
 notna
+Ollama
 Oura
 Pandas
 pycache
 pyenv
 pytest
 pythonpath
+qwen
 RRULE
 ruzv
 shortstat
