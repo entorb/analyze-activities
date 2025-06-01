@@ -4,7 +4,47 @@
 
 from pathlib import Path
 
-from git_2_analyze import extract_data_from_log_entry, process_file
+import pytest
+
+from git_2_analyze import datestr_to_dt, extract_data_from_log_entry, process_file
+
+
+def test_datestr_to_dt_basic() -> None:
+    dt = datestr_to_dt("2025-04-19T21:18:55+02:00")
+    assert dt.year == 2025
+    assert dt.month == 4
+    assert dt.day == 19
+    assert dt.hour == 21
+    assert dt.minute == 18
+    assert dt.second == 0
+    assert dt.tzinfo is None
+
+
+def test_datestr_to_dt_removes_seconds_and_tz() -> None:
+    dt = datestr_to_dt("2023-12-31T23:59:59+00:00")
+    assert dt.year == 2023
+    assert dt.month == 12
+    assert dt.day == 31
+    assert dt.hour == 23
+    assert dt.minute == 59
+    assert dt.second == 0
+    assert dt.tzinfo is None
+
+
+def test_datestr_to_dt_different_timezone() -> None:
+    dt = datestr_to_dt("2022-01-01T00:00:00-05:00")
+    assert dt.year == 2022
+    assert dt.month == 1
+    assert dt.day == 1
+    assert dt.hour == 0
+    assert dt.minute == 0
+    assert dt.second == 0
+    assert dt.tzinfo is None
+
+
+def test_datestr_to_dt_invalid_format_raises() -> None:
+    with pytest.raises(ValueError, match="not-a-date"):
+        datestr_to_dt("not-a-date")
 
 
 def test_extract_data_from_log_entry_1() -> None:
@@ -49,7 +89,6 @@ def test_extract_data_from_log_entry_3() -> None:
 def test_process_file() -> None:
     db: dict[str, list[str]] = {}
     process_file(p=Path("tests/testdata/git.log"), db=db)
-    print(db)
     assert db["2021-05-13"] == [
         "19:21 Coding at git: Update README.md (8 changes)",
         "19:10 Coding at git: Initial commit (17770 changes)",

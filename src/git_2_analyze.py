@@ -9,6 +9,12 @@ from helper import append_data, export_json
 MIN_CHANGES = 5
 
 
+def datestr_to_dt(datestr: str) -> dt.datetime:
+    """Convert to datetime in local timezone, without seconds."""
+    # 2025-04-19T21:18:55+02:00
+    return dt.datetime.fromisoformat(datestr).replace(tzinfo=None, second=0)
+
+
 # 2025-01-07T21:37:10+01:00: Update .gitattributes
 #  1 file changed, 1 insertion(+), 26 deletions(-)
 def extract_data_from_log_entry(element: str) -> dict[str, str | int]:
@@ -18,7 +24,7 @@ def extract_data_from_log_entry(element: str) -> dict[str, str | int]:
     date_str, title = header.split(": ", maxsplit=1)
     stats_dict["title"] = title.replace("\t", " ").strip()
 
-    my_dt = dt.datetime.fromisoformat(date_str)
+    my_dt = datestr_to_dt(date_str)
     stats_dict["date"] = str(my_dt.date())
     stats_dict["time"] = my_dt.strftime("%H:%M")
 
@@ -75,14 +81,13 @@ def process_file(p: Path, db: dict[str, list[str]]) -> None:
             append_data(db, date, s)
 
 
-def main() -> None:  # noqa: D103
+def main_git() -> dict[str, list[str]]:  # noqa: D103
     db: dict[str, list[str]] = {}
-    # key = date, value = list of str
     for p in Path("data/git").glob("*.log"):
         process_file(p=p, db=db)
-
-    export_json(db=db, filename="git")
+    return db
 
 
 if __name__ == "__main__":
-    main()
+    db = main_git()
+    export_json(db=db, filename="git")
