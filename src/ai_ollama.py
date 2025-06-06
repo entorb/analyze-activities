@@ -12,6 +12,7 @@ MODEL = "qwen3:latest"
 # qwen3:latest
 # mistral:latest
 
+MSG_CONTEXT = Path("src/ai_ollama_prompt.md").read_text()
 
 cont = Path("data/join.json").read_text()
 
@@ -24,22 +25,7 @@ stream = chat(
             # "role": "user",
             # 5 data sources: Sleep data, sport activities, calendar entries,
             #  coding commits, personal journal.
-            "content": """Create a text summary for my daily journal that I provide you in JSON format.
-            Highlight the key events and activities.
-            Take sleep data also into account.
-            No daily breakdowns.
-            Do not sum the minutes spend on activities.
-            Do not count the coding tasks.
-            Not interested in visualization of the data, just a text report.
-            Reply in German
-            """,  # noqa: E501
-            # cspell: disable
-            #             "content": """
-            # Erstelle eine Text Zusammenfassung meiner Aktivitäten, die ich als JSON bereitstelle.  # noqa: E501
-            # 4 verschiedenen Datenquellen:
-            # - Schlaf, Sport, Kalendereinträge, Coding commits, Tagebuch
-            # """,
-            # cspell: enable
+            "content": MSG_CONTEXT,
         },
         {"role": "user", "content": cont},
     ],
