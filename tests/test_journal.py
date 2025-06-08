@@ -4,7 +4,7 @@
 
 from pathlib import Path
 
-from journal import main_journal
+from journal import format_time_prefix, main_journal
 
 
 def test_journal() -> None:
@@ -19,3 +19,32 @@ def test_journal() -> None:
         ],
     }
     # cspell:enable
+
+
+def test_format_time_prefix() -> None:
+    s = "Some text"
+    assert format_time_prefix(s) == s
+
+    s = "1200 Some text"
+    assert format_time_prefix(s) == "12:00 Some text"
+
+    s = "12:00 Some text"
+    assert format_time_prefix(s) == "12:00 Some text"
+
+    s = "+1200 Some text"
+    assert format_time_prefix(s) == "12:00 schön: Some text"
+
+    s = "+12:00 Some text"
+    assert format_time_prefix(s) == "12:00 schön: Some text"
+
+    s = "+ 12:00 Some text"
+    assert format_time_prefix(s) == "12:00 schön: Some text"
+
+    s = "+T1200 Some text"
+    assert format_time_prefix(s) == "12:00 gut Torben: Some text"
+
+    s = "+T12:00 Some text"
+    assert format_time_prefix(s) == "12:00 gut Torben: Some text"
+
+    s = "+T 12:00 Some text"
+    assert format_time_prefix(s) == "12:00 gut Torben: Some text"

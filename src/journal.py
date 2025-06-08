@@ -1,5 +1,7 @@
 """Read my personal journal and convert to json list."""
 
+# TODO: A and V prefix
+
 import re
 from pathlib import Path
 
@@ -8,10 +10,29 @@ from helper import append_data, export_json
 FILE_IN = Path("data/journal/lifelog.md")
 
 # re pattern for dates like "Do 02.01.2025"
-RE_DATE_PATTERN = re.compile(r"^[A-Z][a-z] (\d{2})\.(\d{2})\.(\d{4})\s*$")
+RE_DATE = re.compile(r"^[A-Z][a-z] (\d{2})\.(\d{2})\.(\d{4})\s*$")
 
 # re pattern for times without ":" like "1200"
-RE_TIME_PATTERN = re.compile(r"^(\d{2})(\d{2})\b")
+RE_TIME_4_DIGIT = re.compile(r"^(\d{2})(\d{2})\s*(.*)$")
+RE_START_PLUS = re.compile(r"^(\+T?)[\s:]*(\d{2}):?(\d{2})\s*(.*)$")
+
+
+def format_time_prefix(s: str) -> str:
+    """Format line. add ':' to time, move '+T' to after time."""
+    # if line starts with + or +T followed by time
+    match = RE_START_PLUS.match(s)
+    if match:
+        prefix = ""
+        if match.group(1) == "+T":
+            prefix = "gut Torben"
+        elif match.group(1) == "+":
+            prefix = "schön"
+        s = f"{match.group(2)}:{match.group(3)} {prefix}: {match.group(4)}"
+    else:
+        # if line starts with 4 digits -> insert ":"
+        s = RE_TIME_4_DIGIT.sub(r"\1:\2 \3", s)
+
+    return s
 
 
 def main_journal(file_in: Path) -> dict[str, list[str]]:
@@ -25,20 +46,19 @@ def main_journal(file_in: Path) -> dict[str, list[str]]:
                 continue
 
             # if line is a date: "Do 02.01.2025"
-            match = RE_DATE_PATTERN.match(s)
+            match = RE_DATE.match(s)
             if match:
                 date = f"{match.group(3)}-{match.group(2)}-{match.group(1)}"
                 continue
 
-            # if line starts with time -> insert ":"
-            match = RE_TIME_PATTERN.match(s)
-            if match:
-                s = f"{s[:2]}:{s[2:]}"
+            # if line starts with + or +T
+            s = format_time_prefix(s)
+            if s[0:2] == "+T":
+                if s[6:8] == "+T":
+                    s = "super T: " + s[2:]
+                elif s.startswith("+"):
+                    s = "gut: " + s[1:]
 
-            if s.startswith("+T"):
-                s = "super T: " + s[2:]
-            if s.startswith("+"):
-                s = "gut: " + s[1:]
             # replace initials by full names
             if Path("src/name_fix.py").exists():
                 from name_fix import name_fix
