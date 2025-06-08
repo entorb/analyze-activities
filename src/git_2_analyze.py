@@ -69,6 +69,14 @@ def process_file(p: Path, db: dict[str, list[str]]) -> None:
         changes = d["insert"] + d["del"]
         if changes < MIN_CHANGES:
             continue
+        assert isinstance(d["title"], str)
+        if (
+            "README" in d["title"]
+            or "cspell-words.txt" in d["title"]
+            or "History cleanup" in d["title"]
+            or ".gitignore" in d["title"]
+        ):
+            continue
         date = d["date"]
         assert isinstance(date, str)
         assert isinstance(d["time"], str)

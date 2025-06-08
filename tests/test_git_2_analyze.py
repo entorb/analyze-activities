@@ -89,8 +89,8 @@ def test_extract_data_from_log_entry_3() -> None:
 def test_process_file() -> None:
     db: dict[str, list[str]] = {}
     process_file(p=Path("tests/testdata/git.log"), db=db)
+    # not README line included!
     assert db["2021-05-13"] == [
-        "19:21 Coding at git: Update README.md (8 changes)",
         "19:10 Coding at git: Initial commit (17770 changes)",
     ]
     assert db["2021-05-27"] == ["11:35 Coding at git: added disputation (1549 changes)"]
