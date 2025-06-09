@@ -6,7 +6,7 @@ from pathlib import Path
 
 from helper import TZ_DE, TZ_UTC, append_data, export_json
 
-FILE_IN = Path("data/strava/Strava_Activity_Calendar.ics")
+FILE_IN = Path("data/Strava_Activity_Calendar.ics")
 
 
 def datestr_to_dt(datestr: str) -> dt.datetime:
