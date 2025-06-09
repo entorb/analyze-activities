@@ -11,7 +11,7 @@ import icalendar
 
 from helper import TZ_DE, TZ_UTC, append_data, export_json
 
-FILE_IN = Path("data/cal/cal.ics")
+FILE_IN = Path("data/cal.ics")
 TODAY = dt.datetime.now(tz=TZ_DE).date()
 NOW_DT = dt.datetime.now(tz=TZ_DE).replace(tzinfo=None)
 

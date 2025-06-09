@@ -36,7 +36,9 @@ def export_json(db: dict[str, list[str]], filename: str, *, sort: bool = True) -
         db2[key] = lst
 
     # export to json
-    with Path(f"data/{filename}.json").open("w", encoding="utf-8", newline="\n") as fh:
+    with Path(f"output/{filename}.json").open(
+        "w", encoding="utf-8", newline="\n"
+    ) as fh:
         json.dump(db2, fh, ensure_ascii=False, sort_keys=False, indent=2)
 
 

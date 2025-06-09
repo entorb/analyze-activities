@@ -7,7 +7,7 @@ import pandas as pd
 from helper import append_data, export_json
 
 # Deprecated, better use ics export as alternative, to reduce dependency to Pandas
-FILE_IN = Path("data/strava/Strava_Activity_List.xlsx")
+FILE_IN = Path("data/Strava_Activity_List.xlsx")
 
 
 def cleanup(df: pd.DataFrame) -> pd.DataFrame:
