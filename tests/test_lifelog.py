@@ -4,7 +4,7 @@
 
 from pathlib import Path
 
-from journal import format_time_prefix, main_journal
+from lifelog import format_time_prefix, main_journal
 
 
 def test_journal() -> None:
