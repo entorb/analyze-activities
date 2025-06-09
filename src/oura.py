@@ -6,7 +6,7 @@ from pathlib import Path
 
 from helper import append_data, export_json
 
-FILE_IN = Path("data/oura/sleep.csv")
+FILE_IN = Path("data/oura_sleep.csv")
 
 
 def datestr_to_dt(datestr: str) -> dt.datetime:
