@@ -66,7 +66,7 @@ def process_file(p: Path, db: dict[str, list[str]]) -> None:
         # skip minor changes
         assert isinstance(d["insert"], int)
         assert isinstance(d["del"], int)
-        changes = d["insert"] + d["del"]
+        changes = d["insert"]  # + d["del"]
         if changes < MIN_CHANGES:
             continue
         assert isinstance(d["title"], str)

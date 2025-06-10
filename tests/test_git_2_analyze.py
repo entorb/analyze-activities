@@ -93,4 +93,4 @@ def test_process_file() -> None:
     assert db["2021-05-13"] == [
         "19:10 Coding at git: Initial commit (17770 changes)",
     ]
-    assert db["2021-05-27"] == ["11:35 Coding at git: added disputation (1549 changes)"]
+    assert db["2021-05-27"] == ["11:35 Coding at git: added disputation (1545 changes)"]
