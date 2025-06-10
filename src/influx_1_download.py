@@ -5,15 +5,15 @@ from pathlib import Path
 import pandas as pd
 from influxdb import DataFrameClient
 
-# pip install influxdb
 from influx_creds import creds
 
 FILE_OUT = Path("data/influx.csv")
 RETENTION = "y1"
-MEASUREMENT = "Shelly_1y"
+MEASUREMENT = "Shelly_y1"
 QUERY = (
-    f'SELECT ShellyNo, watt_last FROM "{RETENTION}"."{MEASUREMENT}" WHERE ShellyNo = 3'  # noqa: S608
+    f'SELECT ShellyNo, watt_now FROM "{RETENTION}"."{MEASUREMENT}" WHERE ShellyNo = 3'  # noqa: S608 #nosec
 )
+# watt_now is more stable than watt_last, maybe the time is not that stable?
 
 
 def connect2_df(creds: dict) -> DataFrameClient:
