@@ -10,7 +10,14 @@ from helper import append_data
 
 FILE_IN = Path("data/influx.csv")
 WATT_IDLE = 50
-WATT_GAMING = 450
+WATT_GAMING_3D_MIN = 450
+WATT_MOVIE = 207
+WATT_MOVIE_DELTA = 30
+
+# gaming 3D: 450W
+# movie: 207W
+# PC, non gaming?
+# gaming 2D?
 
 
 def main_influx_v1(file_in: Path) -> dict[str, list[str]]:
@@ -34,10 +41,10 @@ def main_influx_v2(file_in: Path) -> pd.DataFrame:
 
     returning datetime as index and column watt_last only
     """
-    df = pd.read_csv(file_in, sep="\t", usecols=["datetime", "watt_last"])
+    df = pd.read_csv(file_in, sep="\t", usecols=["datetime", "watt_now"])
     df["datetime"] = pd.to_datetime(df["datetime"])
     df = df.set_index("datetime")
-    df = df.rename(columns={"watt_last": "watt"})
+    df = df.rename(columns={"watt_now": "watt"})
     return df
 
 
@@ -46,7 +53,18 @@ if __name__ == "__main__":
     # print(db)
     # export_json(db=db, filename="rtm")
     df = main_influx_v2(FILE_IN)
-    df.loc[df["watt"] >= WATT_GAMING, "activity"] = "gaming"
+
+    # gaming
+    df.loc[df["watt"] >= WATT_GAMING_3D_MIN, "activity"] = "gaming"
+
+    # movie
+    df.loc[
+        (df["watt"] >= WATT_MOVIE - WATT_MOVIE_DELTA)
+        & (df["watt"] <= WATT_MOVIE + WATT_MOVIE_DELTA),
+        "activity",
+    ] = "movie"
+
+    # idle
     df.loc[df["watt"] <= WATT_IDLE, "activity"] = "idle"
 
     # fill missing values by "unknown"
