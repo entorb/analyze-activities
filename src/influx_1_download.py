@@ -7,7 +7,7 @@ from influxdb import DataFrameClient
 
 from influx_creds import creds
 
-FILE_OUT = Path("data/influx.csv")
+FILE_OUT = Path("data/influx-media.csv")
 RETENTION = "y1"
 MEASUREMENT = "Shelly_y1"
 QUERY = (
