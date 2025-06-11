@@ -12,7 +12,7 @@ MIN_DATE = dt.date(2025, 1, 1)
 def main() -> None:  # noqa: D103
     db: dict[str, list[str]] = {}
 
-    for source in ("cal", "git", "strava", "oura", "journal", "rtm"):
+    for source in ("cal", "git", "strava", "oura", "lifelog", "rtm"):
         p = Path(f"output/{source}.json")
         print(source)
         with p.open(encoding="utf-8") as fh:
