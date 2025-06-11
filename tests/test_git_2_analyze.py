@@ -10,7 +10,7 @@ from git_2_analyze import datestr_to_dt, extract_data_from_log_entry, process_fi
 
 
 def test_datestr_to_dt_basic() -> None:
-    dt = datestr_to_dt("2025-04-19T21:18:55+02:00")
+    dt = datestr_to_dt("2025-04-19T21:48:55+02:00")
     assert dt.year == 2025
     assert dt.month == 4
     assert dt.day == 19
@@ -26,13 +26,13 @@ def test_datestr_to_dt_removes_seconds_and_tz() -> None:
     assert dt.month == 12
     assert dt.day == 31
     assert dt.hour == 23
-    assert dt.minute == 59
+    assert dt.minute == 29
     assert dt.second == 0
     assert dt.tzinfo is None
 
 
 def test_datestr_to_dt_different_timezone() -> None:
-    dt = datestr_to_dt("2022-01-01T00:00:00-05:00")
+    dt = datestr_to_dt("2022-01-01T00:30:00-05:00")
     assert dt.year == 2022
     assert dt.month == 1
     assert dt.day == 1
@@ -53,7 +53,7 @@ def test_extract_data_from_log_entry_1() -> None:
 """
     d = extract_data_from_log_entry(element)
     assert d["date"] == "2025-01-07", d["date"]
-    assert d["time"] == "21:37", d["time"]
+    assert d["time"] == "21:07", d["time"]
     assert d["title"] == "Update .gitattributes", d["title"]
     assert d["files"] == 1, d["files"]
     assert d["insert"] == 1, d["insert"]
@@ -61,7 +61,7 @@ def test_extract_data_from_log_entry_1() -> None:
 
 
 def test_extract_data_from_log_entry_2() -> None:
-    element = """2024-07-13T07:18:11+02:00: Fixing Ruff
+    element = """2024-07-13T07:48:41+02:00: Fixing Ruff
  10 files changed, 140 insertions(+), 113 deletions(-)
 """
     d = extract_data_from_log_entry(element)
@@ -74,7 +74,7 @@ def test_extract_data_from_log_entry_2() -> None:
 
 
 def test_extract_data_from_log_entry_3() -> None:
-    element = """2024-07-13T03:25:16+02:00: convert json transactions to excel
+    element = """2024-07-13T03:55:16+02:00: convert json transactions to excel
  2 files changed, 87 insertions(+)
 """
     d = extract_data_from_log_entry(element)
@@ -91,6 +91,6 @@ def test_process_file() -> None:
     process_file(p=Path("tests/testdata/git.log"), db=db)
     # not README line included!
     assert db["2021-05-13"] == [
-        "19:10 Coding at git: Initial commit (17770 changes)",
+        "18:40 Coding at git: Initial commit (17770 changes)",
     ]
-    assert db["2021-05-27"] == ["11:35 Coding at git: added disputation (1545 changes)"]
+    assert db["2021-05-27"] == ["11:05 Coding at git: added disputation (1545 changes)"]

@@ -7,16 +7,22 @@ from pathlib import Path
 from helper import append_data, export_json
 
 MIN_CHANGES = 5
+TIME_OFFSET = 30  # min
+
+# example source data:
+# 2025-01-07T21:37:10+01:00: Update .gitattributes
+#  1 file changed, 1 insertion(+), 26 deletions(-)
 
 
 def datestr_to_dt(datestr: str) -> dt.datetime:
     """Convert to datetime in local timezone, without seconds."""
     # 2025-04-19T21:18:55+02:00
-    return dt.datetime.fromisoformat(datestr).replace(tzinfo=None, second=0)
+    my_dt = dt.datetime.fromisoformat(datestr).replace(tzinfo=None, second=0)
+    # guess the start time of the commit
+    my_dt -= dt.timedelta(minutes=TIME_OFFSET)
+    return my_dt
 
 
-# 2025-01-07T21:37:10+01:00: Update .gitattributes
-#  1 file changed, 1 insertion(+), 26 deletions(-)
 def extract_data_from_log_entry(element: str) -> dict[str, str | int]:
     """Extract data from commit log line."""
     stats_dict: dict[str, str | int] = {}
