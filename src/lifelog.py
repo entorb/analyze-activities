@@ -73,4 +73,4 @@ def main_journal(file_in: Path) -> dict[str, list[str]]:
 
 if __name__ == "__main__":
     db = main_journal(FILE_IN)
-    export_json(db=db, filename="journal", sort=False)
+    export_json(db=db, filename=FILE_IN.stem, sort=False)
