@@ -6,6 +6,10 @@ from pathlib import Path
 from helper import append_data, export_json
 
 FILE_IN = Path("data/rtm_tasks_completed.csv")
+# example:
+# name	list	completed	completed_time	completed_week	overdue	prio	overdue_prio	postponed	estimate	url  # noqa: E501
+# Task1	Private	2025-06-09	06:32	2025-06-03	282	2	564	0	10	https://www.rememberthemilk.com/app/#list/1234567/1234567890
+
 MIN_TASK_ESTIMATION = 5
 
 
