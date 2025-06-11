@@ -8,6 +8,10 @@ from pathlib import Path
 from helper import append_data, export_json
 
 FILE_IN = Path("data/lifelog.md")
+# example:
+# Do 22.05.2025
+# +T 0450 early jogging
+# some text without time
 
 # re pattern for dates like "Do 02.01.2025"
 RE_DATE = re.compile(r"^[A-Z][a-z] (\d{2})\.(\d{2})\.(\d{4})\s*$")
