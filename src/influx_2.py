@@ -4,94 +4,100 @@ import csv
 import datetime as dt
 from pathlib import Path
 
-import pandas as pd
+from helper import append_data, export_json
 
-from helper import append_data
+FILE_IN = Path("data/influx-media.csv")
+# example:
+# datetime	ShellyNo	watt_now
+# 2025-06-03 17:05:00	3	120.8
 
-FILE_IN = Path("data/influx.csv")
-WATT_IDLE = 50
-WATT_GAMING_3D_MIN = 450
-WATT_MOVIE = 207
-WATT_MOVIE_DELTA = 30
-
-# gaming 3D: 450W
-# movie: 207W
-# PC, non gaming?
-# gaming 2D?
+DURATION_MIN = 10
 
 
-def main_influx_v1(file_in: Path) -> dict[str, list[str]]:
-    """Read influx.csv and return dict."""
-    db: dict[str, list[str]] = {}
+def guess_activity(watt: float) -> str:
+    """Guess activity based on watt."""
+    # gaming 3D: 450W
+    # movie: 207W
+    # PC, non gaming?
+    # gaming 2D?
+
+    if watt <= 50:  # noqa: PLR2004
+        return "idle"
+    if watt >= 450:  # noqa: PLR2004
+        return "gaming"
+    if watt >= 207 - 30 and watt <= 207 + 30:
+        return "movie"
+    return "unknown"
+
+
+def read_data_to_list(file_in: Path) -> list[tuple[dt.datetime, float]]:
+    """Read influx.csv and return list."""
+    # d: dict[str, list[str]] = {}
+    lst: list[tuple[dt.datetime, float]] = []
     with file_in.open(mode="r", encoding="utf-8") as fh:
         csv_reader = csv.DictReader(fh, delimiter="\t")
         for row in csv_reader:
             # 2025-06-03 17:05:00
             my_dt = dt.datetime.fromisoformat(row["datetime"])
-            date = str(my_dt.date())
-            time = my_dt.strftime("%H:%M")
-            s = time
-            append_data(db, date, s)
+            lst.append((my_dt, float(row["watt_now"])))
+            # date = str(my_dt.date())
+            # time = my_dt.strftime("%H:%M")
+            # s = time
+            # append_data(d, date, s)
+    return lst
+
+
+def grouping_to_dict(
+    lst: list[tuple[dt.datetime, float]],
+) -> dict[str, list[str]]:
+    """Convert raw list to dict of activities."""
+    db: dict[str, list[str]] = {}
+
+    lst2 = [(x[0], guess_activity(x[1])) for x in lst]
+    del lst
+
+    lst3: list[tuple[dt.datetime, str, int]] = []  # start, activity, duration
+
+    current_activity = lst2[0][1]
+    current_start = lst2[0][0]
+    last_dt = current_start
+    final_dt = lst2[-1][0]
+    for this_dt, this_activity in lst2:
+        dur = this_dt - current_start
+        last_dt = this_dt
+        if (
+            this_activity == current_activity
+            and this_dt != final_dt  # last row
+            and this_dt - last_dt < dt.timedelta(minutes=5)  # missing data
+        ):
+            last_dt = this_dt
+            continue
+        # change of activity
+        lst3.append((current_start, current_activity, round(dur.total_seconds() / 60)))
+        current_activity = this_activity
+        current_start = this_dt
+        last_dt = this_dt
+    del lst2
+
+    for dt_start, activity, dur in lst3:
+        # filter out idle short times
+        if dur < DURATION_MIN or activity in ("idle",):
+            continue
+        date = str(dt_start.date())
+        time = f"{dt_start.strftime('%H:%M')}"
+        s = f"{time} Media: {activity} ({dur} min)"
+        append_data(db, date, s)
+
     return db
 
 
-def main_influx_v2(file_in: Path) -> pd.DataFrame:
-    """
-    Read influx.csv and return df.
-
-    returning datetime as index and column watt_last only
-    """
-    df = pd.read_csv(file_in, sep="\t", usecols=["datetime", "watt_now"])
-    df["datetime"] = pd.to_datetime(df["datetime"])
-    df = df.set_index("datetime")
-    df = df.rename(columns={"watt_now": "watt"})
-    return df
+def main_influx(file_in: Path) -> dict[str, list[str]]:
+    """Read influx-media.csv file and return dict."""
+    lst = read_data_to_list(file_in)
+    db = grouping_to_dict(lst)
+    return db
 
 
 if __name__ == "__main__":
-    # db = main_influx_v1(FILE_IN)
-    # print(db)
-    # export_json(db=db, filename="rtm")
-    df = main_influx_v2(FILE_IN)
-
-    # gaming
-    df.loc[df["watt"] >= WATT_GAMING_3D_MIN, "activity"] = "gaming"
-
-    # movie
-    df.loc[
-        (df["watt"] >= WATT_MOVIE - WATT_MOVIE_DELTA)
-        & (df["watt"] <= WATT_MOVIE + WATT_MOVIE_DELTA),
-        "activity",
-    ] = "movie"
-
-    # idle
-    df.loc[df["watt"] <= WATT_IDLE, "activity"] = "idle"
-
-    # fill missing values by "unknown"
-    df["activity"] = df["activity"].fillna("unknown")
-
-    # remove where activity is idle
-    # df = df[df["activity"] != "idle"]
-
-    # Identify where activity changes
-    df["activity_change"] = (
-        (df["activity"] != df["activity"].shift()).astype(int).cumsum()
-    )
-
-    # Group by activity_change to get segments
-    grouped = df.groupby("activity_change")
-
-    records = []
-    for _, group in grouped:
-        activity = group["activity"].iloc[0]
-        start_time = group.index[0]
-        duration = (
-            group.index[-1] - group.index[0]
-        ).total_seconds() / 60 + 1  # minutes, +1 to include both endpoints
-        records.append(
-            {"start": start_time, "activity": activity, "duration": int(duration)}
-        )
-
-    df2 = pd.DataFrame(records).set_index("start")
-
-    print(df2.tail(50))
+    db = main_influx(FILE_IN)
+    export_json(db=db, filename=FILE_IN.stem)
