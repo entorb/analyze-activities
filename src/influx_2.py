@@ -23,11 +23,15 @@ def guess_activity(watt: float) -> str:
 
     if watt <= 50:  # noqa: PLR2004
         return "idle"
-    if watt >= 450:  # noqa: PLR2004
-        return "gaming"
     if watt >= 207 - 30 and watt <= 207 + 30:
         return "movie"
-    return "unknown"
+    if watt >= 450:  # noqa: PLR2004
+        return "gaming 3D+"
+    if watt >= 320:  # noqa: PLR2004
+        return "gaming 3D-"
+    if watt >= 260:  # noqa: PLR2004
+        return "gaming 2D"
+    return "unknown" + str(round(watt / 10) * 10)
 
 
 def read_data_to_list(file_in: Path) -> list[tuple[dt.datetime, float]]:
@@ -45,6 +49,31 @@ def read_data_to_list(file_in: Path) -> list[tuple[dt.datetime, float]]:
             # s = time
             # append_data(d, date, s)
     return lst
+
+
+def moving_average(
+    lst: list[tuple[dt.datetime, float]],
+) -> list[tuple[dt.datetime, float]]:
+    """Apply rolling average of 3 values if datetime difference < 2.5min."""
+    if len(lst) < 3:  # noqa: PLR2004
+        return lst
+    result: list[tuple[dt.datetime, float]] = []
+    for i in range(len(lst)):
+        if i == 0 or i == len(lst) - 1:
+            result.append(lst[i])
+            continue
+        prev_dt, prev_val = lst[i - 1]
+        curr_dt, curr_val = lst[i]
+        next_dt, next_val = lst[i + 1]
+        if (curr_dt - prev_dt).total_seconds() <= 150 and (  # noqa: PLR2004
+            next_dt - curr_dt
+        ).total_seconds() <= 150:  # noqa: PLR2004
+            avg = (prev_val + curr_val + next_val) / 3
+            result.append((curr_dt, avg))
+            print(f"{curr_val=} {avg=}")
+        else:
+            result.append((curr_dt, curr_val))
+    return result
 
 
 def grouping_to_dict(
@@ -81,8 +110,8 @@ def grouping_to_dict(
 
     for dt_start, activity, dur in lst3:
         # filter out idle short times
-        if dur < DURATION_MIN or activity in ("idle",):
-            continue
+        # if dur < DURATION_MIN or activity in ("idle",):
+        #     continue
         date = str(dt_start.date())
         time = f"{dt_start.strftime('%H:%M')}"
         s = f"{time} Media: {activity} ({dur} min)"
@@ -94,6 +123,7 @@ def grouping_to_dict(
 def main_influx(file_in: Path) -> dict[str, list[str]]:
     """Read influx-media.csv file and return dict."""
     lst = read_data_to_list(file_in)
+    lst = moving_average(lst)
     db = grouping_to_dict(lst)
     return db
 
