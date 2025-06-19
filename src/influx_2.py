@@ -70,7 +70,6 @@ def moving_average(
         ).total_seconds() <= 150:  # noqa: PLR2004
             avg = (prev_val + curr_val + next_val) / 3
             result.append((curr_dt, avg))
-            print(f"{curr_val=} {avg=}")
         else:
             result.append((curr_dt, curr_val))
     return result
@@ -123,7 +122,7 @@ def grouping_to_dict(
 def main_influx(file_in: Path) -> dict[str, list[str]]:
     """Read influx-media.csv file and return dict."""
     lst = read_data_to_list(file_in)
-    lst = moving_average(lst)
+    # lst = moving_average(lst)
     db = grouping_to_dict(lst)
     return db
 

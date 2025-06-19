@@ -13,9 +13,9 @@ FILE_IN = Path("tests/testdata/influx-media.csv")
 def test_guess_activity() -> None:
     assert guess_activity(0) == "idle"
     assert guess_activity(-1000) == "idle"
-    assert guess_activity(100) == "unknown"
+    assert guess_activity(100) == "unknown100"
     assert guess_activity(200) == "movie"
-    assert guess_activity(1000) == "gaming"
+    assert guess_activity(1000) == "gaming 3D+"
 
 
 def test_read_data_to_list() -> None:
@@ -38,7 +38,11 @@ def test_grouping_to_dict() -> None:
     ]
     db = grouping_to_dict(lst)
     assert db == {
-        "2025-06-03": ["17:00 Media: movie (16 min)", "17:20 Media: gaming (12 min)"]
+        "2025-06-03": [
+            "17:00 Media: movie (16 min)",
+            "17:16 Media: idle (4 min)",
+            "17:20 Media: gaming 3D+ (12 min)",
+        ]
     }
 
 
