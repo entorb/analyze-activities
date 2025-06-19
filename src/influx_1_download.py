@@ -10,6 +10,7 @@ from influx_creds import creds
 FILE_OUT = Path("data/influx-media.csv")
 RETENTION = "y1"
 MEASUREMENT = "Shelly_y1"
+# TODO: only download new lines
 QUERY = (
     f'SELECT ShellyNo, watt_now FROM "{RETENTION}"."{MEASUREMENT}" WHERE ShellyNo = 3'  # noqa: S608 #nosec
 )
@@ -46,7 +47,7 @@ def fetch_data_to_df2(
     df.index.name = "datetime"
     if tz_de:
         assert type(df.index) is pd.DatetimeIndex
-        df.index = df.index.tz_convert("Europe/Berlin").tz_convert(None)
+        df.index = df.index.tz_convert("Europe/Berlin").tz_localize(None)
     return df
 
 
