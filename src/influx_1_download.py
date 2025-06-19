@@ -46,7 +46,7 @@ def fetch_data_to_df2(
     df.index.name = "datetime"
     if tz_de:
         assert type(df.index) is pd.DatetimeIndex
-        df.index = df.index.tz_convert("Europe/Berlin").tz_convert(None)
+        df.index = df.index.tz_convert("Europe/Berlin").tz_localize(None)
     return df
 
 
