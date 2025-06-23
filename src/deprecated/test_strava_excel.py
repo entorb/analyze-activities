@@ -1,6 +1,6 @@
 """Tests for strava.py."""
 
-# ruff: noqa: D103 PLR2004 INP001
+# ruff: noqa: D103, PLR2004
 
 import pandas as pd
 
