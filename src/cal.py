@@ -34,7 +34,7 @@ def main_cal(p: Path) -> dict[str, list[str]]:  # noqa: D103
 
         # replace initials by full names
         if Path("src/name_fix.py").exists():
-            from name_fix import name_fix
+            from name_fix import name_fix  # noqa: PLC0415
 
             title = name_fix(title)
 
