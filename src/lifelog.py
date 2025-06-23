@@ -65,7 +65,7 @@ def main_journal(file_in: Path) -> dict[str, list[str]]:
 
             # replace initials by full names
             if Path("src/name_fix.py").exists():
-                from name_fix import name_fix
+                from name_fix import name_fix  # noqa: PLC0415
 
                 s = name_fix(s)
 

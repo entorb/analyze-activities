@@ -47,7 +47,7 @@ def main_strava(file_in: Path) -> dict[str, list[str]]:
 
         # replace initials by full names
         if Path("src/name_fix.py").exists():
-            from name_fix import name_fix
+            from name_fix import name_fix  # noqa: PLC0415
 
             title = name_fix(title)
 
