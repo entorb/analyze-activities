@@ -7,5 +7,5 @@ creds = {
     "port": 8086,
     "database": "raspi",
     "user": "user",
-    "password": "pass",
+    "password": "xxx",
 }
