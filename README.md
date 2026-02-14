@@ -79,14 +79,14 @@ run [run-all.sh](src/run-all.sh) to do all in one step
 ### Pytest unit tests
 
 ```sh
-pytest tests/ --cov --cov-report=html:coverage_report
+uv run pytest tests/ --cov --cov-report=html:coverage_report
 ```
 
 ### Ruff formatter and linter
 
 ```sh
-ruff check
-ruff format
+uv run ruff format
+uv run ruff check --fix
 ```
 
 ### Pre-commit code checker
@@ -94,7 +94,7 @@ ruff format
 (also runs Ruff and CSpell)
 
 ```sh
-pre-commit run --all-files
+uv run pre-commit run --all-files
 ```
 
 ### GitHub Action Workflow

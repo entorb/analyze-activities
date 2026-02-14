@@ -1,10 +1,10 @@
 [project]
-name = "template-python"
+name = "analyze-activities"
 version = "0.1.0"
-description = "Torben's template for Python projects"
+description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.13"
-dependencies = []
+requires-python = ">=3.14"
+dependencies = ["icalendar>=7.0.0", "influxdb>=5.3.2"]
 
 [tool.pytest.ini_options]
 pythonpath = "src"
