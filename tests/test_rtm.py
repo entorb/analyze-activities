@@ -1,6 +1,6 @@
 """Tests for git."""
 
-# ruff: noqa: D103, INP001
+# ruff: noqa: INP001
 
 from pathlib import Path
 

@@ -1,6 +1,6 @@
 """Tests for Strava."""
 
-# ruff: noqa: D103, INP001, DTZ001
+# ruff: noqa: INP001, DTZ001
 
 import datetime as dt
 from pathlib import Path
