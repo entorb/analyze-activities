@@ -1,5 +1,4 @@
 """Tests for helper.py."""
-# ruff: noqa: INP001
 
 from helper import append_data, sort_lines
 
