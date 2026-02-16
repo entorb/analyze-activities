@@ -1,7 +1,5 @@
 """Tests for git."""
 
-# ruff: noqa: INP001
-
 from pathlib import Path
 
 from rtm import main_rtm
