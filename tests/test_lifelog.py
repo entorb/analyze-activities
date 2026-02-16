@@ -1,7 +1,5 @@
 """Tests for Journal."""
 
-# ruff: noqa: INP001
-
 from pathlib import Path
 
 from lifelog import format_time_prefix, main_journal

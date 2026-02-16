@@ -1,7 +1,5 @@
 """Tests for git."""
 
-# ruff: noqa: INP001
-
 import datetime as dt
 from pathlib import Path
 
