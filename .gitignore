@@ -1,0 +1,15 @@
+# python
+__pycache__/
+.DS_Store
+.venv/
+.pytest_cache/
+# coverage reports
+.coverage
+htmlcov/
+coverage.xml
+data/
+output/
+
+# project
+src/name_fix.py
+src/influx_creds.py
