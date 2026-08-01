@@ -12,6 +12,7 @@ mmin
 ollama
 Ollama
 oura
+prek
 prio
 Qube
 qwen

@@ -1,0 +1,8 @@
+ignores:
+  - "**/.venv/**"
+  - "**/node_modules/**"
+  - "data/lifelog.md"
+  - "tests/testdata/journal.md"
+
+config:
+  MD013: false # line-length
