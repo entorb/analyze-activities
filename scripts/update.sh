@@ -8,7 +8,7 @@ set -e
 
 # remove all dependencies
 uv remove icalendar influxdb
-uv remove --dev pre-commit pytest pytest-cov ruff
+uv remove --dev pytest pytest-cov ruff
 
 uv lock --upgrade
 uv sync --upgrade
@@ -20,7 +20,7 @@ uv python upgrade
 
 # re-add all dependencies
 uv add icalendar influxdb
-uv add --dev pre-commit pytest pytest-cov ruff
+uv add --dev pytest pytest-cov ruff
 
 uv lock --upgrade
 uv sync --upgrade
@@ -30,7 +30,7 @@ uv run ruff format
 uv run ruff check --fix
 
 # pre-commit
-uv run pre-commit autoupdate
-uv run pre-commit run --all-files
+prek autoupdate
+prek run --all-files
 
 echo DONE
