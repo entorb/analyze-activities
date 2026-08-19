@@ -12,21 +12,21 @@ cd ..
 
 # loop over all repos
 for D in $(ls -d */); do
-    # remove trailing /
-    D="${D%/}"
+  # remove trailing /
+  D="${D%/}"
 
-    # skip non-git dirs
-    if [ ! -d "$D/.git" ]; then
-        echo "$D is no git repo"
-        continue
-    fi
+  # skip non-git dirs
+  if [ ! -d "$D/.git" ]; then
+    echo "$D is no git repo"
+    continue
+  fi
 
-    echo $D
-    cd $D
+  echo $D
+  cd $D
 
-    git log --author=Torben --date=iso-strict --pretty="format:%ad: %s" --shortstat >../analyze-activities/data/git/$D.log
+  git log --author=Torben --date=iso-strict --pretty="format:%ad: %s" --shortstat >../analyze-activities/data/git/$D.log
 
-    cd ..
+  cd ..
 done
 
 # %cd: committer date
