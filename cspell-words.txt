@@ -20,6 +20,7 @@ rememberthemilk
 RRULE
 rumdl
 schön
+shfmt
 shortstat
 sonarcloud
 sonarqube
